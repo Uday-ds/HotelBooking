@@ -31,7 +31,7 @@ namespace HotelBooking.Repository
             _db.RemoveRange(entities);
         }
 
-        public async Task<T> Get(Expression<Func<T, bool>> expression = null, List<string> includes = null)
+        public async Task<T> Get(Expression<Func<T, bool>> expression, List<string> includes = null)
         {
             IQueryable<T> query = _db;
             if (includes != null)
@@ -42,7 +42,7 @@ namespace HotelBooking.Repository
                 }
             }
 
-            return await _db.AsNoTracking().FirstOrDefaultAsync(expression);
+            return await query.AsNoTracking().FirstOrDefaultAsync(expression);
         }
 
         public async Task<IList<T>> GetAll(Expression<Func<T, bool>> expression = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, List<string> includes = null)
@@ -67,7 +67,7 @@ namespace HotelBooking.Repository
                query = orderBy(query);
             }
 
-            return await _db.AsNoTracking().ToListAsync();
+            return await query.AsNoTracking().ToListAsync();
         }
 
         public async Task Insert(T entity)

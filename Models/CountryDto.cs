@@ -10,7 +10,7 @@ namespace HotelBooking.Models
     {
         public int Id { get; set; }
 
-        public virtual IList<HotelDto> Hotels { get; set; }
+        public IList<HotelDto> Hotels { get; set; }
     }
 
     public class CreateCountryDto
