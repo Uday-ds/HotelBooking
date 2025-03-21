@@ -1,7 +1,9 @@
+using HotelBooking.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using HotelBooking.Configurations;
 
 namespace HotelBooking
 {
@@ -26,7 +30,9 @@ namespace HotelBooking
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddDbContext<DatabaseContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("sqlConnection"))
+            );
 
             services.AddCors(c => {
                 c.AddPolicy("CorsPolicyAllowAll", builder => 
@@ -34,6 +40,8 @@ namespace HotelBooking
                     .AllowAnyMethod()
                     .AllowAnyHeader());
             });
+
+            services.AddAutoMapper(typeof(MapperInitializer));
 
             // Add Swagger
             services.AddSwaggerGen(c =>
@@ -50,6 +58,8 @@ namespace HotelBooking
                     }
                 });
             });
+
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,6 +83,7 @@ namespace HotelBooking
             app.UseHttpsRedirection();
 
             app.UseCors("CorsPolicyAllowAll");
+
 
             app.UseRouting();
 
