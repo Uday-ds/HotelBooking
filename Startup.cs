@@ -17,6 +17,7 @@ using AutoMapper;
 using HotelBooking.Configurations;
 using HotelBooking.IRepository;
 using HotelBooking.Repository;
+using HotelBooking.Services;
 
 namespace HotelBooking
 {
@@ -36,6 +37,10 @@ namespace HotelBooking
                 options.UseSqlServer(Configuration.GetConnectionString("sqlConnection"))
             );
 
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+            services.ConfigureJwt(Configuration);
+
             services.AddCors(c => {
                 c.AddPolicy("CorsPolicyAllowAll", builder => 
                     builder.AllowAnyOrigin()
@@ -45,6 +50,7 @@ namespace HotelBooking
 
             services.AddAutoMapper(typeof(MapperInitializer));
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAuthManager, AuthManager>();
 
             // Add Swagger
             services.AddSwaggerGen(c =>
@@ -90,8 +96,8 @@ namespace HotelBooking
 
             app.UseRouting();
 
-            
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
