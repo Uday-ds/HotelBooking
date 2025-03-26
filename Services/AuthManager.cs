@@ -37,7 +37,7 @@ namespace HotelBooking.Services
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
-            var expiration = DateTime.Now.AddMinutes(Convert.ToInt32(jwtSettings.GetSection("lifetime").Value));
+            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings.GetSection("lifetime").Value));
             var token = new JwtSecurityToken (
               issuer: jwtSettings.GetSection("Issuer").Value,
               claims: claims,
@@ -69,7 +69,7 @@ namespace HotelBooking.Services
             var key = Environment.GetEnvironmentVariable("AUTHKEY", EnvironmentVariableTarget.Machine);
             var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
-            return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+            return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256Signature);
 
 
         }
