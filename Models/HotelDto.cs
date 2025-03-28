@@ -20,6 +20,10 @@ namespace HotelBooking.Models
         [Required]
         public int CountryId { get; set; }
     }
+
+    public class UpdateHotelDto : CreateHotelDto
+    { 
+    }
     public class HotelDto : CreateHotelDto
     {
         public int Id { get; set; }
