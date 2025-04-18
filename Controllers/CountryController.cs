@@ -28,22 +28,44 @@ namespace HotelBooking.Controllers
             _mapper = mapper;
         }
 
+        //[HttpGet]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public async Task<IActionResult> GetCountries()
+        //{
+        //    try
+        //    {
+        //        var countries = await _unitOfWork.Countries.GetAll();
+        //        var results = _mapper.Map<IList<CountryDto>>(countries);
+        //        return Ok(results);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, $"Something went wrong in {nameof(GetCountries)}");
+        //        return StatusCode(500, "Internal server error. Please try again later");
+        //    }
+        //}
+
         [HttpGet]
+        //[ResponseCache(Duration = 60)]//60 secs
+        [ResponseCache(CacheProfileName  = "120SecondsDuration")]//setting globally
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCountries()
+        public async Task<IActionResult> GetCountries([FromQuery] RequestParams requestParams)
         {
-            try
-            {
-                var countries = await _unitOfWork.Countries.GetAll();
+            //Global error handling is implemented as an extention method, so no need to handle excepions
+            //Seperately in each method.
+            //try
+            //{
+                var countries = await _unitOfWork.Countries.GetPagedList(requestParams);
                 var results = _mapper.Map<IList<CountryDto>>(countries);
                 return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Something went wrong in {nameof(GetCountries)}");
-                return StatusCode(500, "Internal server error. Please try again later");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, $"Something went wrong in {nameof(GetCountries)}");
+            //    return StatusCode(500, "Internal server error. Please try again later");
+            //}
         }
 
         [HttpGet("{id:int}", Name = "GetCountry")]

@@ -18,6 +18,7 @@ using HotelBooking.Configurations;
 using HotelBooking.IRepository;
 using HotelBooking.Repository;
 using HotelBooking.Services;
+using AspNetCoreRateLimit;
 
 namespace HotelBooking
 {
@@ -37,9 +38,19 @@ namespace HotelBooking
                 options.UseSqlServer(Configuration.GetConnectionString("sqlConnection"))
             );
 
+            services.AddMemoryCache();
+
+            services.ConfigureRateLimiting();
+            services.AddHttpContextAccessor();
+
+            //services.AddResponseCaching();
+
+            services.ConfigureHttpCacheHeaders();
+
             services.AddAuthentication();
             services.ConfigureIdentity();
             services.ConfigureJwt(Configuration);
+            
 
             services.AddCors(c => {
                 c.AddPolicy("CorsPolicyAllowAll", builder => 
@@ -68,7 +79,13 @@ namespace HotelBooking
                 });
             });
 
-            services.AddControllers().AddNewtonsoftJson(op => op.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            //Setting response cache duration globally.
+            services.AddControllers(config => {
+                config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120 });
+            })
+                .AddNewtonsoftJson(op => op.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            services.ConfigureVersioning();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,8 +109,11 @@ namespace HotelBooking
             app.UseHttpsRedirection();
 
             app.UseCors("CorsPolicyAllowAll");
-
-
+           
+            app.UseResponseCaching();
+            app.UseHttpCacheHeaders();
+            app.UseIpRateLimiting();
+             
             app.UseRouting();
 
 
